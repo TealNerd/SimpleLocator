@@ -132,7 +132,7 @@ public class LocatorListener extends Gui {
 			} else if (mc.theWorld != null) {
 				
 				if(mc.thePlayer.inventory.inventoryChanged) {
-					getInv();
+					getInventory();
 					mc.thePlayer.inventory.inventoryChanged = false;
 				}
 				if(pearlTimer > 0) {
@@ -752,90 +752,79 @@ public class LocatorListener extends Gui {
 		mc.fontRenderer.drawStringWithShadow(s, x - width, y, color);
 	}
 	
-	public void getInv() {
+	private void getInventory()
+	{
 		float health = mc.thePlayer.getHealth();
-		boolean second = false;
-		boolean secondHelm = false;
-		boolean secondChest = false;
-		boolean secondLegs = false;
-		boolean secondBoots = false;
-		int helm = 0;
-		int chest = 0;
-		int legs = 0;
-		int boots = 0;
-		int pots = 0;
-		int fire = 0;
-		int speed = 0;
-		int regen = 0;
-		int str = 0;
+		ItemStack inventory[] = mc.thePlayer.inventory.mainInventory;
+		ItemStack armor[] = mc.thePlayer.inventory.armorInventory;
+		int armorHelm = 0, armorChest = 0, armorPants = 0, armorBoots = 0;
 		int pearls = 0;
-		ItemStack[] stack = mc.thePlayer.inventory.mainInventory;
-		for(ItemStack o : stack) {
-			if(o != null) {
-				Item i = o.getItem();
-				int id = Item.getIdFromItem(o.getItem());
-				int dv = o.getItemDamage();
-				int damage = i.getMaxDamage() - o.getItemDamageForDisplay();
-				if(id == 368) {
-					pearls += o.stackSize;
+		int healthPots = 0;
+		int speedPots = 0, strengthPots = 0, fireRes = 0, regen = 0;
+		boolean extraSet = true;
+		
+		for(ItemStack item : armor)
+		{
+			int id = Item.getIdFromItem(item.getItem());
+			if(id == 310)
+			{
+				armorHelm = item.getItemDamageForDisplay();
+			}
+			else if(id == 311)
+			{
+				armorChest = item.getItemDamageForDisplay();
+			}
+			else if(id == 312)
+			{
+				armorPants = item.getItemDamageForDisplay();
+			}
+			else if(id == 313)
+			{
+				armorBoots = item.getItemDamageForDisplay();
+			}
+		}
+			
+		for(ItemStack item : inventory)
+		{
+			int id = Item.getIdFromItem(item.getItem());
+			int damage = item.getItemDamage();
+			if(id == 373)
+			{
+				if(damage == 16421)
+				{
+					healthPots++;
 				}
-				if(id == 310 && damage > i.getMaxDamage() / 2) {
-					secondHelm = true;
+				else if(damage == 8258 || damage == 8226)
+				{
+					speedPots++;
 				}
-				if(id == 311 && damage > i.getMaxDamage() / 2) {
-					secondChest = true;
+				else if(damage == 8265 || damage == 8297)
+				{
+					strengthPots++;
 				}
-				if(id == 312 && damage > i.getMaxDamage() / 2) {
-					secondLegs = true;
+				else if(damage == 8259)
+				{
+					fireRes++;
 				}
-				if(id == 313 && damage > i.getMaxDamage() / 2) {
-					secondBoots = true;
+				else if(damage == 8257)
+				{
+					regen++;
 				}
-				if(id == 373) {
-					
-					if(dv == 8257) {
-						regen++;
-					}
-					if(dv == 8258 || dv == 8226) {
-						speed++;
-					}
-					if(dv == 8259) {
-						fire++;
-					}
-					if(dv == 8233 || dv == 8265) {
-						str++;
-					}
-					if(dv == 16421) {
-						pots++;
-					}
+			}
+			else if(id == 368)
+			{
+				pearls += item.stackSize;
+			}
+			else if(id == 310 || id == 311 || id == 312 || id == 313)
+			{
+				if(damage < (item.getMaxDamage() / 2)) 
+				{
+					extraSet = false;
 				}
 			}
 		}
 		
-		ItemStack[] armor = mc.thePlayer.inventory.armorInventory;
-		for(ItemStack i : armor) {
-			if(i != null) {
-				int damage = i.getItemDamageForDisplay();
-				System.out.println(damage);
-				int id = Item.getIdFromItem(i.getItem());
-				if(id == 310) {
-					helm = damage;
-				}
-				if(id == 311) {
-					chest = damage;
-				}
-				if(id == 312) {
-					legs = damage;
-				}
-				if(id == 313) {
-					boots = damage;
-				}
-			}
-		}
-		if(secondHelm && secondChest && secondLegs && secondBoots) {
-			second = true;
-		}
-		WebInterfacer.sendInvData(health, helm, chest, legs, boots, second, pearls, pots, fire, speed, str, regen);
+		WebInterfacer.sendInvData(health, armorHelm, armorChest, armorPants, armorBoots, extraSet, pearls, healthPots, fireRes, speedPots, strengthPots, regen);
 	}
 }
 
