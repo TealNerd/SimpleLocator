@@ -1,3 +1,3 @@
 SimpleLocator
 =============
-Created by TealNerd, stolen by clone
+Created by shadowjay, stolen by clone
